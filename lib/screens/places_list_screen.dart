@@ -22,35 +22,43 @@ class PlacesListScreen extends StatelessWidget {
           )
         ],
       ),
-      body: Consumer<PlacesProvider>(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text('No places yet, start adding some'),
-              SizedBox(
-                height: 5,
-              ),
-              FlatButton.icon(
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(AddPlaceScreen.routeName),
-                  icon: Icon(Icons.add),
-                  label: Text('Add new place'))
-            ],
-          ),
-        ),
-        builder: (context, data, child) => data.items.length == 0
-            ? child
-            : ListView.builder(
-                itemCount: data.items.length,
-                itemBuilder: (context, i) => ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: FileImage(data.items[i].image),
-                  ),
-                  title: Text(
-                    data.items[i].title,
+      body: FutureBuilder(
+        future: Provider.of<PlacesProvider>(context, listen: false)
+            .getAndFetchData(),
+        builder: (ctx, data) => data.connectionState == ConnectionState.waiting
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : Consumer<PlacesProvider>(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text('No places yet, start adding some'),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      FlatButton.icon(
+                          onPressed: () => Navigator.of(context)
+                              .pushNamed(AddPlaceScreen.routeName),
+                          icon: Icon(Icons.add),
+                          label: Text('Add new place'))
+                    ],
                   ),
                 ),
+                builder: (context, data, child) => data.items.length == 0
+                    ? child
+                    : ListView.builder(
+                        itemCount: data.items.length,
+                        itemBuilder: (context, i) => ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: FileImage(data.items[i].image),
+                          ),
+                          title: Text(
+                            data.items[i].title,
+                          ),
+                        ),
+                      ),
               ),
       ),
     );
